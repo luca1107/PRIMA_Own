@@ -1,6 +1,6 @@
 "use strict";
-var L02_FirstFudge;
-(function (L02_FirstFudge) {
+var SomeTesting;
+(function (SomeTesting) {
     var f = FudgeCore;
     var aktlMesh;
     var aktlMesh_2;
@@ -42,10 +42,10 @@ var L02_FirstFudge;
         root.appendChild(node);
         root.appendChild(node_2);
         //root.appendChild(node_3);
-        L02_FirstFudge.viewport = new f.Viewport();
-        L02_FirstFudge.viewport.initialize("Viewport", root, cmpCamera, canvas);
-        f.Debug.log(L02_FirstFudge.viewport);
-        L02_FirstFudge.viewport.draw();
+        SomeTesting.viewport = new f.Viewport();
+        SomeTesting.viewport.initialize("Viewport", root, cmpCamera, canvas);
+        f.Debug.log(SomeTesting.viewport);
+        SomeTesting.viewport.draw();
         aktlMesh = cmpMesh;
         aktlMesh_2 = cmpMesh_2;
         aktlMesh_3 = cmpMesh_3;
@@ -82,7 +82,7 @@ var L02_FirstFudge;
                 aktlMesh.pivot.rotateX(5);
                 aktlMesh.pivot.rotateZ(-5);
             }
-            L02_FirstFudge.viewport.draw();
+            SomeTesting.viewport.draw();
             await delay(30);
         }
     }
@@ -95,12 +95,12 @@ var L02_FirstFudge;
             }
             aktlMesh_2.pivot.translateX(-0.1 * plusMinus);
             aktlMat_2.material.setCoat(new f.CoatColored(new f.Color(0, 0, 0, 1)));
-            L02_FirstFudge.viewport.draw();
+            SomeTesting.viewport.draw();
             await delay(20);
         }
     }
     function delay(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-})(L02_FirstFudge || (L02_FirstFudge = {}));
+})(SomeTesting || (SomeTesting = {}));
 //# sourceMappingURL=Main.js.map
