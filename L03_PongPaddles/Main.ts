@@ -16,9 +16,9 @@ namespace L03_PongPaddle {
     let paddleLeft: f.Node = new f.Node("PaddleLeft");
     let paddleRight: f.Node = new f.Node("PaddleRight");
 
-    let randX : number;
-    let randY : number;
-    let randZ : number;
+    let randX: number;
+    let randY: number;
+    let randZ: number;
 
     function hndLoad(_event: Event): void {
         const canvas: HTMLCanvasElement = document.querySelector("canvas");
@@ -65,10 +65,10 @@ namespace L03_PongPaddle {
 
     function update(_event: Event): void {
 
-        let lockLeftUP : boolean = false;
-        let lockLeftDOWN : boolean = false;
-        let lockRightUP : boolean = false;
-        let lockRightDOWN : boolean = false;
+        let lockLeftUP: boolean = false;
+        let lockLeftDOWN: boolean = false;
+        let lockRightUP: boolean = false;
+        let lockRightDOWN: boolean = false;
 
         console.log(keysPressed);
 
