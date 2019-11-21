@@ -1,2 +1,2 @@
-declare namespace L05_PongReflection {
+declare namespace L06_First3DSteps {
 }

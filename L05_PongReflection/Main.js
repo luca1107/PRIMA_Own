@@ -115,10 +115,10 @@ var L05_PongReflection;
     }
     function setUpBall() {
         ball.cmpTransform.local.translation = new f.Vector3(0, 0, 0);
-        velX = plusMinus() * Math.random() / 5;
-        velY = plusMinus() * Math.random() / 10;
+        velX = plusMinus() * Math.random() / 6;
+        velY = plusMinus() * Math.random() / 11;
         if (velX < .1)
-            velX = plusMinus() * .5;
+            velX = plusMinus() * .25;
         //randZ = plusMinus() * Math.random() / 10;
     }
     function plusMinus() {

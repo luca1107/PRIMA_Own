@@ -9,6 +9,35 @@ namespace L06_First3DSteps {
     let parentAll: f.Node = new f.Node("ParentAll");
 
     let parentObjects: f.Node = new f.Node("ParentObjects");
+
+    let object1:f.Node;
+
+    interface KeyPressed {
+        [code: string]: boolean;  // Keycode vom Typ String : Boolean = true/false --> Gedrückt oder nicht 
+    }
+
+    let keysPressed: KeyPressed = {};
+
+    function hndKeyup(_event: KeyboardEvent): void {
+        keysPressed[_event.code] = false;
+    }
+    function hndKeydown(_event: KeyboardEvent): void {
+        keysPressed[_event.code] = true;
+    }
+
+
+    function checkInput(): void {
+       
+        if (keysPressed[f.KEYBOARD_CODE.S]) {
+            
+            parentAll.cmpTransform.local.rotation= new f.Vector3(parentAll.cmpTransform.local.rotation.x,parentAll.cmpTransform.local.rotation.x + .1, parentAll.cmpTransform.local.rotation.z);
+              
+        }
+        if (keysPressed[f.KEYBOARD_CODE.S]) {
+            
+            parentAll.cmpTransform.local.rotateX(.01);
+      }
+    }
     
 
     
@@ -23,6 +52,8 @@ namespace L06_First3DSteps {
         let cmpCamera: f.ComponentCamera = new f.ComponentCamera();
         cmpCamera.pivot.translateZ(42);
 
+        create3DScene();
+
 
         
         viewport = new f.Viewport();
@@ -31,28 +62,38 @@ namespace L06_First3DSteps {
 
         viewport.draw();
 
+        document.addEventListener("keydown", hndKeydown);
+        document.addEventListener("keyup", hndKeyup);
+
         f.Loop.addEventListener(f.EVENT.LOOP_FRAME, update);
         f.Loop.start();
     }
 
-    function detectHit(_position: f.Vector3, _node: f.Node): boolean {
+    function create3DScene():void{
 
-        let sclRect: f.Vector3 = _node.getComponent(f.ComponentMesh).pivot.scaling.copy;
+        object1  = createObjects(0);
+        object1.addComponent(new f.ComponentTransform());
+        object1.cmpTransform.local.rotation = new f.Vector3(15,0,20);
 
-        let posRect: f.Vector3 = _node.cmpTransform.local.translation.copy;
+        let object2 : f.Node = createObjects(1);
+        object2.addComponent(new f.ComponentTransform());
+        object2.cmpTransform.local.translate(new f.Vector3(-1,0,0));
+        object2.cmpTransform.local.rotation = new f.Vector3(20,-20,60);
 
-        let rect: f.Rectangle = new f.Rectangle(posRect.x, posRect.y, sclRect.x, sclRect.y, f.ORIGIN2D.CENTER);
 
-        return rect.isInside(_position.toVector2());
+        parentAll.appendChild(object1);
+        parentAll.appendChild(object2);
+        parentAll.addComponent(new f.ComponentTransform());
+
+        parentAll.cmpTransform.local.translate(new f.Vector3(-1,0,0));
 
     }
 
-
-
+   
   
 
     function update(_event: Event): void {
-
+        checkInput();
         f.RenderManager.update();
         viewport.draw();
     }

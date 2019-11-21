@@ -714,7 +714,7 @@ declare namespace FudgeCore {
         /**
          * Initializes offscreen-canvas, renderingcontext and hardware viewport.
          */
-        static initialize(): void;
+        static initialize(_antialias?: boolean, _alpha?: boolean): void;
         /**
          * Return a reference to the offscreen-canvas
          */
@@ -742,6 +742,7 @@ declare namespace FudgeCore {
         static getViewportRectangle(): Rectangle;
         /**
          * Convert light data to flat arrays
+         * TODO: this method appears to be obsolete...?
          */
         protected static createRenderLights(_lights: MapLightTypeToLightList): RenderLights;
         /**
@@ -1043,13 +1044,70 @@ declare namespace FudgeCore {
 }
 declare namespace FudgeCore {
     /**
+     * Baseclass for different kinds of lights.
+     * @authors Jirka Dell'Oro-Friedl, HFU, 2019
+     */
+    abstract class Light extends Mutable {
+        color: Color;
+        constructor(_color?: Color);
+        protected reduceMutator(): void;
+    }
+    /**
+     * Ambient light, coming from all directions, illuminating everything with its color independent of position and orientation (like a foggy day or in the shades)
+     * ```plaintext
+     * ~ ~ ~
+     *  ~ ~ ~
+     * ```
+     */
+    class LightAmbient extends Light {
+        constructor(_color?: Color);
+    }
+    /**
+     * Directional light, illuminating everything from a specified direction with its color (like standing in bright sunlight)
+     * ```plaintext
+     * --->
+     * --->
+     * --->
+     * ```
+     */
+    class LightDirectional extends Light {
+        constructor(_color?: Color);
+    }
+    /**
+     * Omnidirectional light emitting from its position, illuminating objects depending on their position and distance with its color (like a colored light bulb)
+     * ```plaintext
+     *         .\|/.
+     *        -- o --
+     *         ´/|\`
+     * ```
+     */
+    class LightPoint extends Light {
+        range: number;
+    }
+    /**
+     * Spot light emitting within a specified angle from its position, illuminating objects depending on their position and distance with its color
+     * ```plaintext
+     *          o
+     *         /|\
+     *        / | \
+     * ```
+     */
+    class LightSpot extends Light {
+    }
+}
+declare namespace FudgeCore {
+    /**
      * Attaches a [[Light]] to the node
      * @authors Jirka Dell'Oro-Friedl, HFU, 2019
      */
+    /**
+     * Defines identifiers for the various types of light this component can provide.
+     */
     class ComponentLight extends Component {
-        private light;
+        pivot: Matrix4x4;
+        light: Light;
         constructor(_light?: Light);
-        getLight(): Light;
+        setType<T extends Light>(_class: new () => T): void;
     }
 }
 declare namespace FudgeCore {
@@ -1229,6 +1287,9 @@ declare namespace FudgeCore {
         static readonly RED: Color;
         static readonly GREEN: Color;
         static readonly BLUE: Color;
+        static readonly YELLOW: Color;
+        static readonly CYAN: Color;
+        static readonly MAGENTA: Color;
         setNormRGBA(_r: number, _g: number, _b: number, _a: number): void;
         setBytesRGBA(_r: number, _g: number, _b: number, _a: number): void;
         getArray(): Float32Array;
@@ -1358,60 +1419,6 @@ declare namespace FudgeCore {
          */
         static deserialize(_serialization: SerializationOfResources): Resources;
         private static deserializeResource;
-    }
-}
-declare namespace FudgeCore {
-    /**
-     * Baseclass for different kinds of lights.
-     * @authors Jirka Dell'Oro-Friedl, HFU, 2019
-     */
-    abstract class Light extends Mutable {
-        color: Color;
-        constructor(_color?: Color);
-        protected reduceMutator(): void;
-    }
-    /**
-     * Ambient light, coming from all directions, illuminating everything with its color independent of position and orientation (like a foggy day or in the shades)
-     * ```plaintext
-     * ~ ~ ~
-     *  ~ ~ ~
-     * ```
-     */
-    class LightAmbient extends Light {
-        constructor(_color?: Color);
-    }
-    /**
-     * Directional light, illuminating everything from a specified direction with its color (like standing in bright sunlight)
-     * ```plaintext
-     * --->
-     * --->
-     * --->
-     * ```
-     */
-    class LightDirectional extends Light {
-        direction: Vector3;
-        constructor(_color?: Color, _direction?: Vector3);
-    }
-    /**
-     * Omnidirectional light emitting from its position, illuminating objects depending on their position and distance with its color (like a colored light bulb)
-     * ```plaintext
-     *         .\|/.
-     *        -- o --
-     *         ´/|\`
-     * ```
-     */
-    class LightPoint extends Light {
-        range: number;
-    }
-    /**
-     * Spot light emitting within a specified angle from its position, illuminating objects depending on their position and distance with its color
-     * ```plaintext
-     *          o
-     *         /|\
-     *        / | \
-     * ```
-     */
-    class LightSpot extends Light {
     }
 }
 declare namespace FudgeCore {
@@ -1932,7 +1939,7 @@ declare namespace FudgeCore {
         constructor();
         /**
          * - get: a copy of the calculated translation vector
-         * - set: effect the matrix
+         * - set: effect the matrix ignoring its rotation and scaling
          */
         translation: Vector3;
         /**
@@ -2008,6 +2015,11 @@ declare namespace FudgeCore {
          * @param _far The positionvalue of the projectionspace's far border
          */
         static PROJECTION_ORTHOGRAPHIC(_left: number, _right: number, _bottom: number, _top: number, _near?: number, _far?: number): Matrix4x4;
+        /**
+         * Rotate this matrix by given vector in the order Z, Y, X. Right hand rotation is used, thumb points in axis direction, fingers curling indicate rotation
+         * @param _by
+         */
+        rotate(_by: Vector3): void;
         /**
          * Adds a rotation around the x-Axis to this matrix
          */
@@ -2146,27 +2158,24 @@ declare namespace FudgeCore {
          * A shorthand for writing `new Vector2(0, 0)`.
          * @returns A new vector with the values (0, 0)
          */
-        static readonly ZERO: Vector2;
+        static ZERO(): Vector2;
         /**
-         * A shorthand for writing `new Vector2(0, 1)`.
-         * @returns A new vector with the values (0, 1)
+         * A shorthand for writing `new Vector2(_scale, _scale)`.
+         * @param _scale the scale of the vector. Default: 1
          */
-        static readonly UP: Vector2;
+        static ONE(_scale?: number): Vector2;
         /**
-         * A shorthand for writing `new Vector2(0, -1)`.
-         * @returns A new vector with the values (0, -1)
+         * A shorthand for writing `new Vector2(0, y)`.
+         * @param _scale The number to write in the y coordinate. Default: 1
+         * @returns A new vector with the values (0, _scale)
          */
-        static readonly DOWN: Vector2;
+        static Y(_scale?: number): Vector2;
         /**
-         * A shorthand for writing `new Vector2(1, 0)`.
-         * @returns A new vector with the values (1, 0)
+         * A shorthand for writing `new Vector2(x, 0)`.
+         * @param _scale The number to write in the x coordinate. Default: 1
+         * @returns A new vector with the values (_scale, 0)
          */
-        static readonly RIGHT: Vector2;
-        /**
-         * A shorthand for writing `new Vector2(-1, 0)`.
-         * @returns A new vector with the values (-1, 0)
-         */
-        static readonly LEFT: Vector2;
+        static X(_scale?: number): Vector2;
         /**
          * Normalizes a given vector to the given length without editing the original vector.
          * @param _vector the vector to normalize
@@ -2304,7 +2313,7 @@ declare namespace FudgeCore {
         static Z(_scale?: number): Vector3;
         static ZERO(): Vector3;
         static ONE(_scale?: number): Vector3;
-        static TRANSFORMATION(_vector: Vector3, _matrix: Matrix4x4): Vector3;
+        static TRANSFORMATION(_vector: Vector3, _matrix: Matrix4x4, _includeTranslation?: boolean): Vector3;
         static NORMALIZATION(_vector: Vector3, _length?: number): Vector3;
         /**
          * Sums up multiple vectors.
@@ -2354,7 +2363,7 @@ declare namespace FudgeCore {
         set(_x?: number, _y?: number, _z?: number): void;
         get(): Float32Array;
         readonly copy: Vector3;
-        transform(_matrix: Matrix4x4): void;
+        transform(_matrix: Matrix4x4, _includeTranslation?: boolean): void;
         /**
          * Drops the z-component and returns a Vector2 consisting of the x- and y-components
          */
