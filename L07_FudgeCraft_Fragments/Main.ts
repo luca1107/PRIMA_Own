@@ -8,7 +8,7 @@ namespace L07_FudgeCraft_Fragments {
 
     
 
-    let raster: boolean[][][];
+    let raster: Cube[][][];
 
    
     function hndLoad(_event: Event): void {
@@ -73,7 +73,7 @@ namespace L07_FudgeCraft_Fragments {
     function setupRaster(): void {
         
         const n = 20; // or some dynamic value
-        raster = new Array(n).fill(false).map(() => new Array(n).fill(false).map(() => new Array(n).fill(false)));
+        raster = new Array(n).fill(null).map(() => new Array(n).fill(null).map(() => new Array(n).fill(null)));
        
         
            
@@ -87,8 +87,8 @@ namespace L07_FudgeCraft_Fragments {
                 let y: number = fragment.cmpTransform.local.translation.y + fragmentPart.cmpTransform.local.translation.y;
                 let z: number = fragment.cmpTransform.local.translation.z + fragmentPart.cmpTransform.local.translation.z;
 
-                if (raster[x + 10][y + 10][z + 10] != true) {
-                    raster[x + 10][y + 10][z + 10] = true;
+                if (raster[x + 10][y + 10][z + 10] == null) {
+                    raster[x + 10][y + 10][z + 10] = fragmentPart;
                 }
                 else {
                     console.log("kollision an Stelle : x:" + x + "y" + y + "z" + z);

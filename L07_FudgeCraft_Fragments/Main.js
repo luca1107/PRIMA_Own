@@ -45,7 +45,7 @@ var L07_FudgeCraft_Fragments;
     }
     function setupRaster() {
         const n = 20; // or some dynamic value
-        raster = new Array(n).fill(false).map(() => new Array(n).fill(false).map(() => new Array(n).fill(false)));
+        raster = new Array(n).fill(null).map(() => new Array(n).fill(null).map(() => new Array(n).fill(null)));
     }
     function checkCollision() {
         setupRaster();
@@ -54,8 +54,8 @@ var L07_FudgeCraft_Fragments;
                 let x = fragment.cmpTransform.local.translation.x + fragmentPart.cmpTransform.local.translation.x;
                 let y = fragment.cmpTransform.local.translation.y + fragmentPart.cmpTransform.local.translation.y;
                 let z = fragment.cmpTransform.local.translation.z + fragmentPart.cmpTransform.local.translation.z;
-                if (raster[x + 10][y + 10][z + 10] != true) {
-                    raster[x + 10][y + 10][z + 10] = true;
+                if (raster[x + 10][y + 10][z + 10] == null) {
+                    raster[x + 10][y + 10][z + 10] = fragmentPart;
                 }
                 else {
                     console.log("kollision an Stelle : x:" + x + "y" + y + "z" + z);
